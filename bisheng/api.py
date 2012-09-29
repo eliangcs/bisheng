@@ -31,6 +31,8 @@ def add_spaces(text):
         return add_space
     text = PATTERN_CJK_ENG.subn(add_space_func(1, 2), text)[0]
     text = PATTERN_ENG_CJK.subn(add_space_func(1, 2), text)[0]
+    # XXX"YYY"XXX -> XXX "YYY" XXX
+    # where X and Y are CJK charaters
     is_left_dquote = True
     is_left_squote = True
     out = StringIO.StringIO()
