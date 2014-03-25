@@ -1,9 +1,8 @@
-import re
-try:
-    import cString as StringIO
-except ImportError:
-    import StringIO
+import StringIO as StringIO
+import regex
 
+
+regex.DEFAULT_VERSION = regex.VERSION1
 
 # CJK characters
 CHAR_CJK = (u'\u3040-\u30FF\u3105-\u312C\u3200-\u33FF\u3400-\u4DBF'
@@ -23,19 +22,16 @@ CHAR_ENG_RIGHT = (u'\u0023-\u0026\\\u0028\\\u002A\\\u002B\\\u002D\u002F-\u0039\u
                   u'\u2010-\u2016\u2018\u201A-\u201C\u201E-\u2023\u2027'
                   u'\u2030\u2031\u2039\u2043-\u2045\u205E\u20A0-\u20CF\u2100-\u218F')
 
-
 # Patterns
-PATTERN_ENG_CJK = re.compile(u'([%s])([%s])' % (CHAR_ENG_LEFT, CHAR_CJK))
-PATTERN_CJK_ENG = re.compile(u'([%s])([%s])' % (CHAR_CJK, CHAR_ENG_RIGHT))
+PATTERN_ENG_CJK = regex.compile(u'([%s])([%s])' % (CHAR_ENG_LEFT, CHAR_CJK))
+PATTERN_CJK_ENG = regex.compile(u'([%s])([%s])' % (CHAR_CJK, CHAR_ENG_RIGHT))
 
 
 def add_spaces(text, exclude=None):
     if exclude:
-        patt_exclude = u'[%s]' % re.escape(exclude)
-        eng_left = re.sub(patt_exclude, u'', CHAR_ENG_LEFT)
-        eng_right = re.sub(patt_exclude, u'', CHAR_ENG_RIGHT)
-        patt_eng_cjk = re.compile(u'([%s])([%s])' % (eng_left, CHAR_CJK))
-        patt_cjk_eng = re.compile(u'([%s])([%s])' % (CHAR_CJK, eng_right))
+        patt_exclude = regex.escape(exclude)
+        patt_eng_cjk = regex.compile(u'([[%s]--%s])([%s])' % (CHAR_ENG_LEFT, patt_exclude, CHAR_CJK))
+        patt_cjk_eng = regex.compile(u'([%s])([[%s]--%s])' % (CHAR_CJK, CHAR_ENG_RIGHT, patt_exclude))
     else:
         patt_eng_cjk = PATTERN_ENG_CJK
         patt_cjk_eng = PATTERN_CJK_ENG
@@ -48,45 +44,47 @@ def add_spaces(text, exclude=None):
     text = patt_cjk_eng.subn(add_space_func(1, 2), text)[0]
     text = patt_eng_cjk.subn(add_space_func(1, 2), text)[0]
 
-    # XXX"YYY"XXX -> XXX "YYY" XXX
-    # where X and Y are CJK charaters
-    is_left_dquote = True
-    is_left_squote = True
-    out = StringIO.StringIO()
-    for i in xrange(len(text)):
-        prev_char = text[i - 1] if i > 0 else None
-        cur_char = text[i]
-        next_char = text[i + 1] if i < len(text) - 1 else None
-        if cur_char == u'\"':
-            if is_left_dquote:
-                if _is_cjk(prev_char):
-                    out.write(u' \"')
+    if not (exclude and '"' in exclude):
+        # XXX"YYY"XXX -> XXX "YYY" XXX
+        # where X and Y are CJK charaters
+        is_left_dquote = True
+        is_left_squote = True
+        out = StringIO.StringIO()
+        for i in xrange(len(text)):
+            prev_char = text[i - 1] if i > 0 else None
+            cur_char = text[i]
+            next_char = text[i + 1] if i < len(text) - 1 else None
+            if cur_char == u'\"':
+                if is_left_dquote:
+                    if _is_cjk(prev_char):
+                        out.write(u' \"')
+                    else:
+                        out.write(u'\"')
+                    is_left_dquote = False
                 else:
-                    out.write(u'\"')
-                is_left_dquote = False
+                    if _is_cjk(next_char):
+                        out.write(u'\" ')
+                    else:
+                        out.write(u'\"')
+                    is_left_dquote = True
+            elif cur_char == u'\'':
+                if is_left_squote:
+                    if _is_cjk(prev_char):
+                        out.write(u' \'')
+                    else:
+                        out.write(u'\'')
+                    is_left_squote = False
+                else:
+                    if _is_cjk(next_char):
+                        out.write(u'\' ')
+                    else:
+                        out.write(u'\'')
+                    is_left_squote = True
             else:
-                if _is_cjk(next_char):
-                    out.write(u'\" ')
-                else:
-                    out.write(u'\"')
-                is_left_dquote = True
-        elif cur_char == u'\'':
-            if is_left_squote:
-                if _is_cjk(prev_char):
-                    out.write(u' \'')
-                else:
-                    out.write(u'\'')
-                is_left_squote = False
-            else:
-                if _is_cjk(next_char):
-                    out.write(u'\' ')
-                else:
-                    out.write(u'\'')
-                is_left_squote = True
-        else:
-            out.write(cur_char)
-    text = out.getvalue()
-    out.close()
+                out.write(cur_char)
+        text = out.getvalue()
+        out.close()
+
     return text
 
 
