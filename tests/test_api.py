@@ -1,6 +1,6 @@
- # -*- coding: utf-8 -*-
-import unittest
+# -*- coding: utf-8 -*-
 import bisheng
+import unittest
 
 
 class APITest(unittest.TestCase):
