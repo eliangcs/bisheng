@@ -68,5 +68,18 @@ class AddSpacesTest(unittest.TestCase):
         self.assertEqual(bisheng.add_spaces(u'雙"引"號', exclude='"'), u'雙"引"號')
 
 
+class JianFanTest(unittest.TestCase):
+
+    def test_to_simp(self):
+        self.assertEqual(
+            bisheng.to_simp(u'也最情大友安你然開物世需不書「活情」何，空會這天歡作臺。'),
+            u'也最情大友安你然开物世需不书“活情”何，空会这天欢作台。')
+
+    def test_to_trad(self):
+        self.assertEqual(
+            bisheng.to_trad(u'也最情大友安你然开物世需不书“活情”何，空会这天欢作台。'),
+            u'也最情大友安你然開物世需不書「活情」何，空會這天歡作台。')
+
+
 if __name__ == '__main__':
     unittest.main()
