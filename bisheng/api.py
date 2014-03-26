@@ -1,5 +1,5 @@
-import StringIO as StringIO
 import regex
+import StringIO
 
 
 regex.DEFAULT_VERSION = regex.VERSION1
