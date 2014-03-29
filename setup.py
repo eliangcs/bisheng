@@ -3,6 +3,12 @@ import bisheng
 from distutils.core import setup
 
 
+def parse_requirements(filename):
+    with open(filename) as f:
+        content = f.read()
+    return filter(lambda x: x and not x.startswith('#'), content.splitlines())
+
+
 setup(
     name='bisheng',
     version=bisheng.__version__,
@@ -13,6 +19,7 @@ setup(
     author_email='eliang.cs@gmail.com',
     license='BSD',
     packages=['bisheng'],
+    install_requires=parse_requirements('requirements.txt'),
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',
