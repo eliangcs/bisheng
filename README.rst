@@ -1,6 +1,15 @@
 BiSheng
 =======
 
+.. image:: https://badge.fury.io/py/bisheng.png
+    :target: http://badge.fury.io/py/bisheng
+
+.. image:: https://travis-ci.org/eliangcs/bisheng.png?branch=master
+    :target: https://travis-ci.org/eliangcs/bisheng
+
+.. image:: https://coveralls.io/repos/eliangcs/bisheng/badge.png?branch=master
+    :target: https://coveralls.io/r/eliangcs/bisheng
+
 A set of utility functions for processing Chinese text. Current features
 include:
 
