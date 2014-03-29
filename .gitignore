@@ -1,4 +1,6 @@
 *.pyc
 .coverage
+bisheng.egg-info/
+build/
 dist/
 MANIFEST
