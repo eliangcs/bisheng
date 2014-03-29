@@ -43,7 +43,7 @@ Specify the characters you want to exclude::
     >>> print bisheng.add_spaces(u'中[括]弧', exclude='[]')
     中[括]弧
 
-Traditional/simplified Chinese convertion::
+Traditional/simplified Chinese conversion::
 
     >>> print bisheng.to_simp(u'畢昇')
     毕升
